@@ -1,15 +1,16 @@
 import hashlib
 import requests
-
+import json
 import sys
-
+#from numba import jit, cuda
+#import numpy
 from uuid import uuid4
 
 from timeit import default_timer as timer
 
 import random
 
-
+#@jit(target='cuda')
 def proof_of_work(last_proof):
     """
     Multi-Ouroboros of Work Algorithm
@@ -19,12 +20,15 @@ def proof_of_work(last_proof):
     - p is the previous proof, and p' is the new proof
     - Use the same method to generate SHA-256 hashes as the examples in class
     """
-
+    
+    lh = f'{last_proof}'.encode()
+    lh= hashlib.sha256(lh).hexdigest()
     start = timer()
 
     print("Searching for next proof")
     proof = 0
-    #  TODO: Your code here
+    while valid_proof(lh, proof) is False:
+            proof = random.randint(0,1000000000)
 
     print("Proof found: " + str(proof) + " in " + str(timer() - start))
     return proof
@@ -40,7 +44,16 @@ def valid_proof(last_hash, proof):
     """
 
     # TODO: Your code here!
-    pass
+    
+
+    guess = f"{proof}".encode()
+
+    guess_hash = hashlib.sha256(guess).hexdigest()
+
+    if last_hash[-6:] == guess_hash[:6]:
+        return guess_hash
+    else:
+        return False
 
 
 if __name__ == '__main__':
